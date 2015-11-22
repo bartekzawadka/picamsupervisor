@@ -1,0 +1,38 @@
+#! /bin/bash
+#
+# Author: Bartek Zawadka, 2015
+#
+# Contact: kontakt@bartoszzawadka.pl
+#
+# /etc/init.d/alarm-signal-monitor
+#
+### BEGIN INIT INFO
+# Provides: alarm-signal-monitor
+# Required-Start: $remote_fs $syslog $network
+# Required-Stop: $remote_fs $syslog $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Pi Cam Supervisor - Alarm signal monitor
+# Description: Monitors intruder signal from alarm system dispatcher
+### END INIT INFO
+
+case "$1" in
+	start)
+ 		echo "Starting PiCamSupervisor - Alarm signal monitor"
+ 		sudo python /usr/share/alarm-system-monitor/manager.py start
+ 		;;
+ 	stop)
+ 		echo "Stopping PiCamSupervisor - Alarm signal monitor"
+ 		sudo python /usr/share/alarm-system-monitor/manager.py stop
+ 		;;
+ 	restart)
+ 		echo "Restarting PiCamSupervisor - Alarm signal monitor"
+ 		sudo python /usr/share/alarm-system-monitor/manager.py restart
+ 		;;
+ 	*)
+ 		echo "Invalid command. Usage: /etc/init.d/alarm-signal-monitor.sh {start|stop|restart}"
+ 		exit 1
+ 		;;
+ esac
+
+ exit 0

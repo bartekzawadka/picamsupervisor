@@ -19,10 +19,10 @@ def stop_recording():
 if __name__ == '__main__':
     try:
         conf = {}
-        execfile("/etc/picamsupervisor/recorder.config", conf)
+        execfile("/etc/picamsupervisor/recorder.conf", conf)
         port = conf["recorder_service_port"]
     except Exception, e:
-        Logger.get_logger().warn(
+        Logger.get_logger("Recorder-Service").warning(
             "RecorderService: Service initialization - cannot read config file. Using default port (808)")
         port = 808
 

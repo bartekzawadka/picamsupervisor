@@ -1,13 +1,14 @@
 import sys
 from monitordaemon import MonitorDaemon
 from daemon import runner
+from logger import Logger
 
 
 def main(args):
     if len(args) != 2:
         print "Invalid number of arguments. Only 1 argument expected"
     else:
-        monitord = MonitorDaemon()
+        monitord = MonitorDaemon(args)
 
         if args[1] == "start":
             monitord.start()
@@ -16,7 +17,9 @@ def main(args):
         elif args[1] == "restart":
             monitord.restart()
 
-        runner.DaemonRunner(monitord).do_action()
+        drunner = runner.DaemonRunner(monitord)
+        drunner.daemon_context.files_preserve = [Logger.get_handler().stream]
+        drunner.do_action()
 
 
 if __name__ == '__main__':
