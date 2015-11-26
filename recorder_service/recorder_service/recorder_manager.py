@@ -1,6 +1,8 @@
 import os
 from logger import Logger
 import RPi.GPIO as GPIO
+from threading import Thread
+
 from recorder_runner import RecorderRunner
 
 
@@ -9,7 +11,7 @@ class RecorderManager:
         self.logger = Logger.get_logger("Recorder-Service")
         self.__set_parameters()
         self.__initialize_gpio()
-        self.record_task = RecorderRunner(group=None, target=None, name="None", args=(self.record_width, self.record_height, self.record_path, self.record_time, self.record_task_finished_callback))
+        #self.record_task = RecorderRunner(self.record_task_finished_callback)
         self.logger.info("RecorderManager: Width: %s, Height: %s" % (self.record_width, self.record_height))
 
     def __set_parameters(self):
@@ -70,7 +72,8 @@ class RecorderManager:
             if self.is_raspivid_running(): #or (self.record_task is not None and self.record_task.is_alive):
                 self.logger.info("Recorder: raspivid is already working. Nothing to be done")
             else:
-                self.record_task.run()
+                #self.record_task.start()
+                Thread(target=self.record_task, args=(self.callback,)).start()
                 self.logger.info("Recorder: raspivid task executed. Recording started")
 
             return True
@@ -97,3 +100,23 @@ class RecorderManager:
     def record_task_finished_callback(self, result):
         self.__switch_ir_lighting(False)
         self.logger.info("Recorder: raspivid process finished")
+
+    def record_task(self, callback):
+        global result
+        try:
+            self.logger.info("RecorderRunner: Record task started")
+            #duration = self.time * 60000
+            #file = self.path + time.strftime("%Y.%m.%d-%Hh.%Mm.%Ss", time.localtime()) + ".h264"
+            #exit_code = os.system("raspivid -t %s -w %s -h %s -o %s" % (duration, self.width, self.height, file))
+            exit_code = 0
+            self.logger.info("RecorderRunner: RECORDING BLA BLA BLA")
+            self.logger.info("RecorderRunner: Record task finished with exit code: %s" % exit_code)
+            result = True
+        except Exception, e:
+            self.logger.error("RecordRunner: Record task failed!\n%s" % e)
+            result = False
+        finally:
+            callback(result)
+
+    def callback(self, result):
+        self.logger.info("RecorderRunner: TASK RESULT: %s" % result)
