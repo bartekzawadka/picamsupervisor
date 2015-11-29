@@ -1,7 +1,6 @@
 import os
 from logger import Logger
 import RPi.GPIO as GPIO
-from threading import Thread
 
 from recorder_runner import RecorderRunner
 
@@ -69,11 +68,11 @@ class RecorderManager:
         self.logger.info("Recorder: Video recording start request occurred")
         try:
             self.__switch_ir_lighting(True)
-            if self.is_raspivid_running(): #or (self.record_task is not None and self.record_task.is_alive):
+            if self.is_raspivid_running():
                 self.logger.info("Recorder: raspivid is already working. Nothing to be done")
             else:
-                #self.record_task.start()
-                Thread(target=self.record_task, args=(self.callback,)).start()
+                record_task = RecorderRunner(self.record_width, self.record_height, self.record_path, self.record_time, self.record_task_finished_callback)
+                record_task.start()
                 self.logger.info("Recorder: raspivid task executed. Recording started")
 
             return True
