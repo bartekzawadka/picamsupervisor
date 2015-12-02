@@ -1,7 +1,8 @@
-from threading import Thread
-from logger import Logger
 import os
 import time
+from threading import Thread
+
+from picamsupervisor_logger import Logger
 
 
 class RecorderRunner(Thread):

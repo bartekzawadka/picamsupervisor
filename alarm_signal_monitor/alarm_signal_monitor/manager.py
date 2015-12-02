@@ -1,7 +1,9 @@
 import sys
-from monitordaemon import MonitorDaemon
+
 from daemon import runner
-from logger import Logger
+
+from monitordaemon import MonitorDaemon
+from picamsupervisor_logger import Logger
 
 
 def main(args):

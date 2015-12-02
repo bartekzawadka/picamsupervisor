@@ -1,6 +1,7 @@
 import flask
+
+from picamsupervisor_logger import Logger
 from recorder_manager import RecorderManager
-from logger import Logger
 
 app = flask.Flask(__name__)
 rec = RecorderManager()

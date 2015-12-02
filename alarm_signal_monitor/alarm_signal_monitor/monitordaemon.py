@@ -1,7 +1,9 @@
-import RPi.GPIO as GPIO
 import time
-from logger import Logger
 import urllib2
+
+import RPi.GPIO as GPIO
+
+from picamsupervisor_logger import Logger
 
 
 class MonitorDaemon:

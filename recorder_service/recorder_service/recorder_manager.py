@@ -1,7 +1,8 @@
 import os
-from logger import Logger
+
 import RPi.GPIO as GPIO
 
+from picamsupervisor_logger import Logger
 from recorder_runner import RecorderRunner
 
 
