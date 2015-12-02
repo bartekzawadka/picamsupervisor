@@ -6,7 +6,6 @@ import logging.config
 class Logger:
 
     __handler = None
-    __logdir = "/var/log/picamsupervisor/"
 
     @staticmethod
     def get_logger(modulename):
@@ -19,7 +18,7 @@ class Logger:
     def get_handler():
         if Logger.__handler is None:
             formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-            thandler = logging.handlers.TimedRotatingFileHandler(Logger.__logdir + 'picamsupervisor.log', when="midnight")
+            thandler = logging.handlers.TimedRotatingFileHandler(Logger.get_logs_dir() + 'picamsupervisor.log', when="midnight")
             thandler.suffix = "%Y-%m-%d"
             thandler.setFormatter(formatter)
             Logger.__handler = thandler
@@ -27,4 +26,10 @@ class Logger:
 
     @staticmethod
     def get_logs_dir():
-        return Logger.__logdir
+        try:
+            conf = {}
+            execfile("/etc/picamsupervisor/log.conf", conf)
+            path = conf["log_dir"]
+        except Exception, e:
+            path = '/var/log/picamsupervisor/'
+        return path

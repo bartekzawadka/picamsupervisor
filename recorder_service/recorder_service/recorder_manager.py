@@ -100,23 +100,3 @@ class RecorderManager:
     def record_task_finished_callback(self, result):
         self.__switch_ir_lighting(False)
         self.logger.info("Recorder: raspivid process finished")
-
-    def record_task(self, callback):
-        global result
-        try:
-            self.logger.info("RecorderRunner: Record task started")
-            #duration = self.time * 60000
-            #file = self.path + time.strftime("%Y.%m.%d-%Hh.%Mm.%Ss", time.localtime()) + ".h264"
-            #exit_code = os.system("raspivid -t %s -w %s -h %s -o %s" % (duration, self.width, self.height, file))
-            exit_code = 0
-            self.logger.info("RecorderRunner: RECORDING BLA BLA BLA")
-            self.logger.info("RecorderRunner: Record task finished with exit code: %s" % exit_code)
-            result = True
-        except Exception, e:
-            self.logger.error("RecordRunner: Record task failed!\n%s" % e)
-            result = False
-        finally:
-            callback(result)
-
-    def callback(self, result):
-        self.logger.info("RecorderRunner: TASK RESULT: %s" % result)

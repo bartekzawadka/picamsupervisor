@@ -1,8 +1,6 @@
 import time
 import urllib2
-
 import RPi.GPIO as GPIO
-
 from picamsupervisor_logger import Logger
 
 
@@ -64,6 +62,7 @@ class MonitorDaemon:
         if hosts is None:
             self.logger.warning("MonitorDaemon: Alarm signal info was not broadcasted. No recorders found.")
             return
+
         for host in hosts:
             try:
                 result = urllib2.urlopen("http://" + host + "/start_recording").read()
