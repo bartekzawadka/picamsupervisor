@@ -4,12 +4,19 @@ import os
 import shutil
 
 
+def check_package_exists():
+    if os.path.exists("/etc/picamsupervisor/monitor.conf") and os.path.exists("/usr/local/picamsupervisor/alarm_signal_monitor"):
+        return True
+    else:
+        return False
+
+
 class PostInstall(install):
     def run(self):
         try:
             install.run(self)
 
-            if self.check_package_exists():
+            if check_package_exists():
                 print "Package already exists - please uninstall before updating"
                 print "Exiting"
                 return
@@ -29,7 +36,7 @@ class PostInstall(install):
 
             shutil.copyfile(init_d_script_path, init_d_script_dest_path)
 
-            # Make symbolic link to monitor daemon
+            # Create symbolic link to monitor daemon
             print "Adding symlink to daemon's directory"
 
             link_target_path = os.path.join(self.install_lib, "alarm_signal_monitor")
@@ -62,12 +69,8 @@ class PostInstall(install):
         except Exception, e:
             print "Installation failed"
             print e
+            exit(1)
 
-    def check_package_exists(self):
-        if(os.path.exists("/etc/picamsupervisor/monitor.conf") and os.path.exists("/usr/local/picamsupervisor/alarm_signal_monitor")):
-            return True
-        else:
-            return False
 
 setup(name='alarm_signal_monitor',
       version='1.0',
