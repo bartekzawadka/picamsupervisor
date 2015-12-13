@@ -36,6 +36,12 @@ class PostInstall(install):
 
             shutil.copyfile(init_d_script_path, init_d_script_dest_path)
 
+            # Set privileges on the script
+            code = os.system("chmod 755 /etc/init.d/alarm-signal-monitor")
+            if code != 0:
+                print "Setting script privileges failed with exit code: %s" % code
+                exit(1)
+
             # Create symbolic link to monitor daemon
             print "Adding symlink to daemon's directory"
 

@@ -12,6 +12,8 @@ class RecorderRunner(Thread):
         self.width = rec_width
         self.height = rec_height
         self.path = rec_dest_path
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
         self.time = rec_time
         self.callback = rec_callback
         self.logger.info("RecorderRunner: Initialized")

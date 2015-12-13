@@ -51,6 +51,9 @@ class MonitorDaemon:
                 self.logger.warning("MonitorDaemon: Error reading hosts communication port!. Property could not be found or is invalid")
                 return None
 
+            if hosts is None or len(hosts) == 0:
+                return None
+
             newhosts = []
             for host in hosts:
                 p = "%s" % port

@@ -3,18 +3,16 @@
 # ===== Help functions =====
 
 function print_help {
-
     echo "Invalid arguments. See description below:"
     echo ""
     echo "Usage:"
-    echo "sh uninstall.sh [modules...]"
+    echo "sh uninstall.sh [modules]"
     echo ""
     echo "MODULES:"
     echo "asg - Alarm signal monitor"
     echo "rs - Recorder service"
     echo "logger - Logger"
     exit 1
-
 }
 
 # ==========================
@@ -42,7 +40,7 @@ function remove_monitor {
     rm -r "`readlink -f /usr/local/picamsupervisor/alarm_signal_monitor`"
 
     # 5. Remove symlink
-    rm /usr/local/alarm_signal_monitor
+    rm /usr/local/picamsupervisor/alarm_signal_monitor
 
     # WE DO NOT REMOVE CONFIG FILES OR OVERWRITE THEM
 }

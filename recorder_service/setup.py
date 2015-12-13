@@ -5,7 +5,7 @@ import shutil
 
 
 def check_package_exists():
-    if os.path.exists("/etc/picamsupervisor/monitor.conf") and os.path.exists("/usr/local/picamsupervisor/alarm_signal_monitor"):
+    if os.path.exists("/etc/picamsupervisor/recorder.conf") and os.path.exists("/usr/local/picamsupervisor/recorder_service"):
         return True
     else:
         return False
@@ -55,10 +55,10 @@ class PostInstall(install):
             exit(1)
 
 
-setup(name='alarm_signal_monitor',
+setup(name='recorder_service',
       version='1.0',
-      description='Pi Cam Supervisor Alarm Signal Monitor service',
+      description='Pi Cam Supervisor Recorder service',
       author='Bartosz Zawadka',
       author_email='kontakt@bartoszzawadka.pl',
-      packages=['alarm_signal_monitor'],
+      packages=['recorder_service'],
       cmdclass={'install': PostInstall})
