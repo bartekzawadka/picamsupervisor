@@ -31,6 +31,8 @@ class PostInstall(install):
                 shutil.copyfile(config_path, os.path.join(directory, "monitor.conf"))
 
             # Copy init.d script
+            print "Copying init.d scripts"
+
             init_d_script_path = os.path.join(os.getcwd(), "scripts", "alarm-signal-monitor")
             init_d_script_dest_path = os.path.join("/etc/init.d/", "alarm-signal-monitor")
 

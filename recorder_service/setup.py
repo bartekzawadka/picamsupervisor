@@ -30,6 +30,18 @@ class PostInstall(install):
                 config_path = os.path.join(os.getcwd(), "config", "recorder.conf")
                 shutil.copyfile(config_path, os.path.join(directory, "recorder.conf"))
 
+            # Copy init.d script
+            init_d_script_path = os.path.join(os.getcwd(), "scripts", "recorder-service")
+            init_d_script_dest_path = os.path.join("/etc/init.d/", "recorder-service")
+
+            shutil.copyfile(init_d_script_path, init_d_script_dest_path)
+
+            # Set privileges on the script
+            code = os.system("chmod 755 /etc/init.d/recorder-service")
+            if code != 0:
+                print "Setting script privileges failed with exit code: %s" % code
+                exit(1)
+
             # Create symbolic link to monitor daemon
             print "Adding symlink to daemon's directory"
 
@@ -46,6 +58,18 @@ class PostInstall(install):
                 print "Symlink already exists"
             else:
                 print "Symlink added successfully"
+
+
+            # Adding alarm signal monitor daemon to system services registry
+            print "Adding daemon to system services registry"
+            update_rc_command = "update-rc.d recorder-service defaults"
+            exit_code = os.system(update_rc_command)
+
+            if exit_code != 0:
+                print "Registration failed with exit code: %s" % exit_code
+                exit(1)
+            else:
+                print "Daemon registration finished successfully"
 
             print "Installation finished successfully"
             exit(0)

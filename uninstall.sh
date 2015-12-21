@@ -9,7 +9,7 @@ function print_help {
     echo "sh uninstall.sh [modules]"
     echo ""
     echo "MODULES:"
-    echo "asg - Alarm signal monitor"
+    echo "asm - Alarm signal monitor"
     echo "rs - Recorder service"
     echo "logger - Logger"
     exit 1
@@ -49,6 +49,12 @@ function remove_service {
     # 1. Remove symlink target
     # 2. Remove target
 
+    # Remove daemon from init
+    update-rc.d recorder-service remove
+
+    # Remove init.d script
+    rm /etc/init.d/recorder-service
+
     # Remove symlink target
     rm -r "`readlink -f /usr/local/picamsupervisor/recorder_service`"
 
@@ -75,7 +81,7 @@ function remove_logger {
 # ===== Arguments validation ====
 for ((i=1; i<=${#@}; i++));
 do
-    if [ "$i" != "asg" ] && [ "$i" != "rs" ] && [ "$i" != "logger" ]
+    if [ "${!i}" != "asm" ] && [ "${!i}" != "rs" ] && [ "${!i}" != "logger" ];
     then
         print_help
     fi
@@ -87,8 +93,8 @@ done
 
 for ((i=1; i<=${#@}; i++));
 do
-    case "$i" in
-    asg)
+    case "${!i}" in
+    asm)
         remove_monitor
         ;;
     rs)
