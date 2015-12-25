@@ -1,0 +1,188 @@
+#!/bin/bash
+
+# ===== Help functions =====
+
+function print_help {
+    echo "Invalid arguments. See description below:"
+    echo ""
+    echo "Usage:"
+    echo "bash setup [mode] [modules]"
+    echo ""
+    echo "MODES:"
+    echo "-i - Install"
+    echo "-u - Uninstall"
+    echo ""
+    echo "MODULES:"
+    echo "asm - Alarm signal monitor"
+    echo "rs - Recorder service"
+    echo "logger - Logger"
+    exit 1
+}
+
+# ==========================
+
+if [ $# -lt 2 ]
+then
+    print_help
+fi
+
+if ([ $1 != "-i" ] && [ $1 != "-u" ]);
+then
+    print_help
+fi
+
+script_working_dir=${PWD}
+
+# ===== Install functions =======
+
+function install_logger {
+    echo "Installing PiCamSupervisor logger..."
+
+    # 1. Change dir
+    cd $script_working_dir/picamsupervisor_logger
+
+    # 2. Run logger setup
+    python setup.py build && python setup.py install
+    exit_code=$?
+
+    if [ $exit_code != 0 ]; then
+        echo "PiCamSupervisor logger installation failed."
+        printf "Exit code: %d" $exit_code
+        exit 1
+    fi
+
+    echo "PiCamSupervisor logger installation succeeded"
+}
+
+function install_module {
+
+    echo "Installing PiCamSupervisor $1"
+
+    # Change dir
+    cd $script_working_dir/$2
+
+    python setup.py build && python setup.py install
+    exit_code=$?
+
+    if [ $exit_code != 0 ]; then
+        echo "PiCamSupervisor $1 installation failed."
+        printf "Exit code: %d" $exit_code
+        exit 1
+    fi
+
+    echo "PiCamSupervisor $1 installation succeeded"
+}
+
+# ==========================
+
+# ===== Uninstall functions =====
+
+function remove_monitor {
+    # 1. Stop service
+    service alarm-signal-monitor stop
+
+    # 2. Remove daemon script from init list
+    update-rc.d alarm-signal-monitor remove
+
+    # 3. Remove init script
+    rm /etc/init.d/alarm-signal-monitor
+
+    # 4. Remove symlink target
+    rm -r "`readlink -f /usr/local/picamsupervisor/alarm_signal_monitor`"
+
+    # 5. Remove symlink
+    rm /usr/local/picamsupervisor/alarm_signal_monitor
+
+    # WE DO NOT REMOVE CONFIG FILES OR OVERWRITE THEM
+}
+
+function remove_service {
+    # 1. Remove symlink target
+    # 2. Remove target
+
+    # Remove daemon from init
+    update-rc.d recorder-service remove
+
+    # Remove init.d script
+    rm /etc/init.d/recorder-service
+
+    # Remove symlink target
+    rm -r "`readlink -f /usr/local/picamsupervisor/recorder_service`"
+
+    # Remove symlink
+    rm /usr/local/picamsupervisor/recorder_service
+
+    return
+
+}
+
+function remove_logger {
+    # Remove symlink target
+    rm -r "`readlink -f /usr/local/picamsupervisor/logger`"
+
+    # Remove symlink
+    rm /usr/local/picamsupervisor/logger
+
+    return
+}
+# ==========================
+
+# Checking if all listed modules are known and supported
+for((i=2; i<=${#@}; i++));
+do
+    if ([ ${!i} != "logger" ] && [ ${!i} != "asm" ] && [ ${!i} != "rs" ]);
+    then
+        print_help
+    fi
+done
+
+if [ $1 == "-i" ];
+then
+    # Checking if logger is listed. If not, we need to install it
+    IS_LOGGER=0
+
+    for((i=2; i<=${#@}; i++));
+    do
+        if [ ${!i} == "logger" ];
+        then
+            $IS_LOGGER=1
+        fi
+    done
+
+    if [ $IS_LOGGER == 0 ];
+    then
+        install_logger
+    fi
+
+    for((i=2; i<=${#@}; i++));
+    do
+        case "${!i}" in
+            logger)
+                install_logger
+                ;;
+            asm)
+                install_module "Alarm signal monitor" alarm_signal_monitor
+                ;;
+            rs)
+                install_module "Recorder service" recorder_service
+                ;;
+        esac
+    done
+
+else
+    for((i=2; i<=${#@}; i++));
+    do
+        case "${!i}" in
+            logger)
+                remove_logger
+                ;;
+            asm)
+                remove_monitor
+                ;;
+            rs)
+                remove_service
+                ;;
+        esac
+    done
+fi
+
