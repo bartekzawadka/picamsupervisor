@@ -35,25 +35,6 @@ script_working_dir=${PWD}
 
 # ===== Install functions =======
 
-function install_logger {
-    echo "Installing PiCamSupervisor logger..."
-
-    # 1. Change dir
-    cd $script_working_dir/picamsupervisor_logger
-
-    # 2. Run logger setup
-    python setup.py build && python setup.py install
-    exit_code=$?
-
-    if [ $exit_code != 0 ]; then
-        echo "PiCamSupervisor logger installation failed."
-        printf "Exit code: %d" $exit_code
-        exit 1
-    fi
-
-    echo "PiCamSupervisor logger installation succeeded"
-}
-
 function install_module {
 
     echo "Installing PiCamSupervisor $1"
@@ -77,43 +58,25 @@ function install_module {
 
 # ===== Uninstall functions =====
 
-function remove_monitor {
-    # 1. Stop service
-    service alarm-signal-monitor stop
+function remove_module {
+    # 1. Stop daemon
+    service $1 stop
 
-    # 2. Remove daemon script from init list
-    update-rc.d alarm-signal-monitor remove
+    # 2. Remove daemon script from rc
+    update-rc.d $1 remove
 
-    # 3. Remove init script
-    rm /etc/init.d/alarm-signal-monitor
+    # 3. Remove init.d script
+    rm /etc/init.d/$1
 
     # 4. Remove symlink target
-    rm -r "`readlink -f /usr/local/picamsupervisor/alarm_signal_monitor`"
+    rm -r "`readlink -f /usr/local/picamsupervisor/$2`"
 
     # 5. Remove symlink
-    rm /usr/local/picamsupervisor/alarm_signal_monitor
+    rm /usr/local/picamsupervisor/$2
 
     # WE DO NOT REMOVE CONFIG FILES OR OVERWRITE THEM
-}
 
-function remove_service {
-    # 1. Remove symlink target
-    # 2. Remove target
-
-    # Remove daemon from init
-    update-rc.d recorder-service remove
-
-    # Remove init.d script
-    rm /etc/init.d/recorder-service
-
-    # Remove symlink target
-    rm -r "`readlink -f /usr/local/picamsupervisor/recorder_service`"
-
-    # Remove symlink
-    rm /usr/local/picamsupervisor/recorder_service
-
-    return
-
+    echo "Module $3 uninstalling succeeded"
 }
 
 function remove_logger {
@@ -122,8 +85,6 @@ function remove_logger {
 
     # Remove symlink
     rm /usr/local/picamsupervisor/logger
-
-    return
 }
 # ==========================
 
@@ -136,7 +97,7 @@ do
     fi
 done
 
-if [ $1 == "-i" ];
+if [ $1 == "-i" ]; # installation mode selected
 then
     # Checking if logger is listed. If not, we need to install it
     IS_LOGGER=0
@@ -151,14 +112,14 @@ then
 
     if [ $IS_LOGGER == 0 ];
     then
-        install_logger
+        install_module "logger" picamsupervisor_logger
     fi
 
     for((i=2; i<=${#@}; i++));
     do
         case "${!i}" in
             logger)
-                install_logger
+                install_module "logger" picamsupervisor_logger
                 ;;
             asm)
                 install_module "Alarm signal monitor" alarm_signal_monitor
@@ -177,12 +138,13 @@ else
                 remove_logger
                 ;;
             asm)
-                remove_monitor
+                remove_module alarm-signal-monitor alarm_signal_monitor "Alarm signal monitor"
                 ;;
             rs)
-                remove_service
+                remove_module recorder-service recorder_service "Recorder service"
                 ;;
         esac
     done
 fi
+
 
