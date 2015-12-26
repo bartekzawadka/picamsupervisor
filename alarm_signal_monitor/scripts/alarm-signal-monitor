@@ -16,18 +16,26 @@
 # Description: Monitors burglary signal from alarm system dispatcher
 ### END INIT INFO
 
+PIDFILE=/var/run/alarm-signal-monitor.pid
+USER=root
+CHUID=root
+STARTAS=/usr/bin/python
+ARGS=/usr/local/picamsupervisor/alarm_signal_monitor/monitor_service.pyc
+RTIME=10
+
 case "$1" in
 	start)
  		echo "Starting PiCamSupervisor - Alarm signal monitor"
- 		sudo python /usr/local/picamsupervisor/alarm_signal_monitor/manager.py start
+ 		sudo start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --user $USER --chuid $CHUID --background --startas $STARTAS -- $ARGS
  		;;
  	stop)
  		echo "Stopping PiCamSupervisor - Alarm signal monitor"
- 		sudo python /usr/local/picamsupervisor/alarm_signal_monitor/manager.py stop
+ 		sudo start-stop-daemon --stop --pidfile $PIDFILE --retry $RTIME
  		;;
  	restart)
  		echo "Restarting PiCamSupervisor - Alarm signal monitor"
- 		sudo python /usr/local/picamsupervisor/alarm_signal_monitor/manager.py restart
+ 		$0 stop
+ 		$0 start
  		;;
  	*)
  		echo "Invalid command. Usage: /etc/init.d/alarm-signal-monitor {start|stop|restart}"
